@@ -19,7 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-// aliasy dla czytelności
+// aliases for readability
 using MdContainerInline = Markdig.Syntax.Inlines.ContainerInline;
 using MdInline = Markdig.Syntax.Inlines.Inline;
 using MdTable = Markdig.Extensions.Tables.Table;
@@ -46,9 +46,9 @@ namespace LiveMarkdown.Controls
 
         private static readonly MarkdownPipeline Pipeline =
             new MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()   // nagłówki, listy, tabele itd.
-                .UseEmojiAndSmiley()       // :smile: :) itp.
-                .UsePipeTables()           // tabele | a | b |
+                .UseAdvancedExtensions()   // headings, lists, tables, etc.
+                .UseEmojiAndSmiley()       // :smile: :) etc.
+                .UsePipeTables()           // tables | a | b |
                 .UseMathematics()          // MathBlock, MathInline
                 .UseTaskLists()
                 .Build();
@@ -77,30 +77,6 @@ namespace LiveMarkdown.Controls
 
         #region Markdown rendering (blocks)
 
-        /*
-        private void RenderMarkdown()
-        {
-            if (_contentHost is null)
-                return;
-
-            _contentHost.Children.Clear();
-
-            if (string.IsNullOrWhiteSpace(Text))
-                return;
-
-            var doc = Markdown.Parse(Text, Pipeline);
-
-            foreach (var block in doc)
-            {
-                // magazyn definicji linków – nie renderujemy
-                if (block is LinkReferenceDefinitionGroup)
-                    continue;
-
-                RenderBlock(block, _contentHost, listDepth: 0);
-            }
-        }
-        */
-
         private void RenderMarkdown()
         {
             if (_contentHost is null)
@@ -113,7 +89,7 @@ namespace LiveMarkdown.Controls
                 return;
             }
 
-            // Czy to jest "czyste dopisanie" na końcu?
+            // Is this a pure append at the end?
             bool isAppend = _lastText is not null
                             && Text is not null
                             && Text.Length > _lastText.Length
@@ -121,10 +97,10 @@ namespace LiveMarkdown.Controls
 
             _lastText = Text;
 
-            // Parsujemy nowy dokument
+            // Parse the new document
             var doc = Markdown.Parse(Text, Pipeline);
 
-            // Zbieramy TYLKO bloki, które realnie renderujemy
+            // Collect ONLY blocks that we actually render
             var blocks = new List<Block>();
             foreach (var block in doc)
             {
@@ -134,7 +110,7 @@ namespace LiveMarkdown.Controls
                 blocks.Add(block);
             }
 
-            // Jeśli nic nie wyrenderowane albo nie jest to zwykłe dopisywanie – pełny render
+            // If nothing was rendered or this isn't a simple append — full render
             if (_contentHost.Children.Count == 0 || !isAppend)
             {
                 _contentHost.Children.Clear();
@@ -147,12 +123,12 @@ namespace LiveMarkdown.Controls
                 return;
             }
 
-            // TRYB INKREMENTALNY – staramy się dotknąć tylko końcówki
+            // INCREMENTAL MODE — try to touch only the tail
 
             int existing = _contentHost.Children.Count;
             int blockCount = blocks.Count;
 
-            // Jeżeli liczba bloków zmniejszyła się albo mamy dziwną sytuację – robimy pełny render.
+            // If block count decreased or something odd — do a full render.
             if (blockCount == 0 || blockCount < existing)
             {
                 _contentHost.Children.Clear();
@@ -161,16 +137,16 @@ namespace LiveMarkdown.Controls
                 return;
             }
 
-            // Zakładamy mapowanie 1:1: child[i] odpowiada blocks[i]
-            // Zostawiamy wszystko oprócz ostatniego istniejącego bloku,
-            // a od niego w górę renderujemy ponownie.
+            // We assume 1:1 mapping: child[i] corresponds to blocks[i]
+            // Keep everything except the last existing block,
+            // and re-render from it upwards.
             int startIndex = Math.Max(0, existing - 1);
 
-            // Usuwamy dzieci od startIndex do końca
+            // Remove children from startIndex to the end
             for (int i = _contentHost.Children.Count - 1; i >= startIndex; i--)
                 _contentHost.Children.RemoveAt(i);
 
-            // Renderujemy od startIndex do końca nowych bloków
+            // Render new blocks from startIndex to end
             for (int i = startIndex; i < blockCount; i++)
             {
                 RenderBlock(blocks[i], _contentHost, listDepth: 0);
@@ -179,14 +155,14 @@ namespace LiveMarkdown.Controls
 
 
         /// <summary>
-        /// Główna dyspozytornia dla bloków.
-        /// listDepth – poziom zagnieżdżenia list (do wcięć).
+        /// Main dispatcher for blocks.
+        /// listDepth – nesting level for lists (for indentation).
         /// </summary>
         private void RenderBlock(Block block, Panel target, int listDepth = 0)
         {
             try
             {
-                // Najpierw sprawdzamy specjalne przypadki dziedziczące po CodeBlock
+                // First check special cases inheriting from CodeBlock
                 if (block is MathBlock mathBlock)
                 {
                     RenderMathBlock(mathBlock, target);
@@ -243,7 +219,7 @@ namespace LiveMarkdown.Controls
 
         private void RenderHtmlBlock(HtmlBlock htmlBlock, Panel target)
         {
-            // surowy HTML – można kiedyś podpiąć WebView / własny parser
+            // raw HTML — could attach WebView / custom parser in the future
             var raw = htmlBlock.Lines.ToString().Trim();
             if (string.IsNullOrWhiteSpace(raw))
                 return;
@@ -295,7 +271,7 @@ namespace LiveMarkdown.Controls
                 Margin = new Thickness(0, 12, 0, 4)
             };
 
-            // klasy do stylowania w XAML
+            // classes for styling in XAML
             tb.Classes.Add("md-heading");
             tb.Classes.Add($"md-heading-{heading.Level}");
 
@@ -325,7 +301,7 @@ namespace LiveMarkdown.Controls
         {
             var codeText = codeBlock.Lines.ToString().TrimEnd('\r', '\n');
 
-            // 1) Specjalny przypadek: ```latex / ```math / ```tex
+            // 1) Special case: ```latex / ```math / ```tex
             if (codeBlock is FencedCodeBlock fenced)
             {
                 var info = fenced.Info?.ToString()?.Trim().ToLowerInvariant();
@@ -349,7 +325,7 @@ namespace LiveMarkdown.Controls
                         }
                         catch
                         {
-                            // Fallback: pokaż tekst, jeśli LaTeX padnie
+                            // Fallback: show text if LaTeX fails
                             target.Children.Add(new TextBlock
                             {
                                 Text = codeText,
@@ -363,7 +339,7 @@ namespace LiveMarkdown.Controls
                 }
             }
 
-            // 2) Normalny blok kodu – AvaloniaEdit
+            // 2) Normal code block — AvaloniaEdit
 
             var editor = new TextEditor
             {
@@ -374,13 +350,13 @@ namespace LiveMarkdown.Controls
                 VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
                 Padding = new Thickness(4, 2, 4, 2),
 
-                // Twarde wartości, żeby NIE zniknęło nawet bez styli:
+                // Hard-coded values so it still looks ok even without styles:
                 FontFamily = new FontFamily("Consolas, Courier New, monospace"),
                 Foreground = Brushes.White,
                 Background = Brushes.Transparent
             };
 
-            // KLUCZOWE: nazwa klasy zgodna z XAML
+            // KEY: class name matches XAML
             editor.Classes.Add("md-code-block");
 
             // syntax highlighting
@@ -410,14 +386,14 @@ namespace LiveMarkdown.Controls
                 }
             }
 
-            // 3) Border wokół kodu – też twarde wartości + klasa do stylowania
+            // 3) Border around code — also hard-coded values + class for styling
 
             var border = new Border
             {
                 Child = editor,
                 Margin = new Thickness(0, 4, 0, 12),
 
-                // DOMYŚLNE tło, nawet jak style się nie załadują:
+                // DEFAULT background, even if styles don't load:
                 Background = new SolidColorBrush(Color.FromArgb(255, 64, 64, 64)),
                 CornerRadius = new CornerRadius(4),
                 Padding = new Thickness(4)
@@ -629,7 +605,7 @@ namespace LiveMarkdown.Controls
             }
             catch
             {
-                // Fallback: jeśli render LaTeX padnie, pokaż jako tekst
+                // Fallback: if LaTeX render fails, show as text
                 target.Children.Add(new TextBlock
                 {
                     Text = "$$ " + latex + " $$",
@@ -689,7 +665,7 @@ namespace LiveMarkdown.Controls
                             break;
 
                         case HtmlInline:
-                            // nic nie robimy – tekst i tak jest w LiteralInline
+                            // do nothing — text is already in LiteralInline
                             break;
 
                         default:
@@ -884,7 +860,7 @@ namespace LiveMarkdown.Controls
                 return;
             }
 
-            // Utwórz TextBlock z klasą md-link-text (już stosujesz)
+            // Create TextBlock with class md-link-text (already used)
             var textBlock = new TextBlock
             {
                 Text = text,
@@ -893,7 +869,7 @@ namespace LiveMarkdown.Controls
 
             textBlock.Classes.Add("md-link-text");
 
-            // Stwórz przycisk i nadaj mu zgodną klasę md-link
+            // Create a button and assign it the md-link class
             var button = new Button
             {
                 Content = textBlock,
@@ -903,22 +879,22 @@ namespace LiveMarkdown.Controls
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
 
-            // KLUCZOWA ZMIANA: używamy md-link (zgodnie z Generic.axaml)
+            // KEY CHANGE: use md-link (matching Generic.axaml)
             button.Classes.Add("md-link");
 
-            // Accessibility: ustaw czytelny opis dla narzędzi wspomagających
+            // Accessibility: set a readable name for assistive tools
             button.SetValue(Avalonia.Automation.AutomationProperties.NameProperty, text);
 
-            // Minimalne zabezpieczenie przed wielokrotnym przypięciem eventów:
-            // zamiast anonimowego handlera możesz użyć Command jeśli chcesz później bindować.
+            // Minimal protection against attaching events multiple times:
+            // you can use a Command instead of an anonymous handler if you plan to bind later.
             void clickHandler(object? _, RoutedEventArgs __) => OpenUrl(url);
 
             button.Click += clickHandler;
 
-            // Opcjonalnie: jeśli chcesz unikać potencjalnych wycieków w długotrwałych kontrolkach,
-            // możesz odpiąć handler przy usuwaniu kontrolki (to wymaga dodatkowego hooka),
-            // ale dla prostoty zostawiamy handler — jeśli zaczniesz mieć problemy z pamięcią,
-            // zamienimy to na Command lub WeakReference handler.
+            // Optionally: to avoid potential leaks in long-lived controls,
+            // you can detach the handler when the control is removed (requires an extra hook),
+            // but for simplicity we keep the handler — if memory issues arise,
+            // we'll switch to a Command or a weak-reference handler.
             var inlineContainer = new InlineUIContainer
             {
                 Child = button
@@ -990,7 +966,7 @@ namespace LiveMarkdown.Controls
             }
             catch
             {
-                // TODO: log / toast
+                // TODO: log / show toast
             }
         }
 

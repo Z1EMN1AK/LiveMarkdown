@@ -5,7 +5,7 @@
         xmlns:math="clr-namespace:AvaloniaMath.Controls;assembly=AvaloniaMath">
 
 	<!-- ========================================================= -->
-	<!-- Template dla MarkdownView                                 -->
+	<!-- Template for MarkdownView                                 -->
 	<!-- ========================================================= -->
 	<Style Selector="local|MarkdownView">
 		<Setter Property="Template">
@@ -15,11 +15,11 @@
 						Padding="8"
 						Background="Transparent">
 						<ScrollViewer>
-							<!-- tu lądują wszystkie wygenerowane kontrolki -->
+							<!-- all generated controls land here -->
 							<StackPanel x:Name="PART_ContentHost"
-										Orientation="Vertical"
-										Spacing="4" />
-						</ScrollViewer>
+									Orientation="Vertical"
+									Spacing="4" />
+							</ScrollViewer>
 					</Border>
 				</ControlTemplate>
 			</Setter.Value>
@@ -28,8 +28,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Nagłówki                                                   -->
-	<!-- (w C#: tb.Classes.Add("md-heading-1" | "md-heading-2"...)  -->
+	<!-- Headings                                                  -->
+	<!-- (in C#: tb.Classes.Add("md-heading-1" | "md-heading-2"...)  -->
 	<!-- ========================================================= -->
 
 	<Style Selector="TextBlock.md-heading-1">
@@ -56,7 +56,7 @@
 		<Setter Property="Margin" Value="0,8,0,4" />
 	</Style>
 
-	<!-- fallback dla headingów 5/6, jeśli też dajesz klasę -->
+	<!-- fallback for headings 5/6, if you also add the class -->
 	<Style Selector="TextBlock.md-heading-5">
 		<Setter Property="FontSize" Value="16" />
 		<Setter Property="FontWeight" Value="SemiBold" />
@@ -65,20 +65,20 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Zwykłe paragrafy                                           -->
-	<!-- (w C#: tb.Classes.Add("md-paragraph"))                     -->
+	<!-- Regular paragraphs                                         -->
+	<!-- (in C#: tb.Classes.Add("md-paragraph"))                     -->
 	<!-- ========================================================= -->
 
 	<Style Selector="TextBlock.md-paragraph">
 		<Setter Property="TextWrapping" Value="Wrap" />
 		<Setter Property="Margin" Value="0,4,0,12" />
-		<!-- możesz tu dodać Foreground, LineHeight itd. -->
+		<!-- you can add Foreground, LineHeight etc. here -->
 	</Style>
 
 
 	<!-- ========================================================= -->
-	<!-- Cytaty                                                     -->
-	<!-- (w C#: border.Classes.Add("md-quote"))                     -->
+	<!-- Quotes                                                     -->
+	<!-- (in C#: border.Classes.Add("md-quote"))                     -->
 	<!-- ========================================================= -->
 
 	<Style Selector="Border.md-quote">
@@ -91,8 +91,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Linie poziome (HR)                                        -->
-	<!-- (w C#: border.Classes.Add("md-hr"))                        -->
+	<!-- Horizontal rules (HR)                                       -->
+	<!-- (in C#: border.Classes.Add("md-hr"))                        -->
 	<!-- ========================================================= -->
 
 	<Style Selector="Border.md-hr">
@@ -103,8 +103,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Tabele                                                     -->
-	<!-- (w C#: grid.Classes.Add("md-table");                       -->
+	<!-- Tables                                                     -->
+	<!-- (in C#: grid.Classes.Add("md-table");                       -->
 	<!--     cellBorder.Classes.Add("md-table-header" / "md-table-cell")) -->
 	<!-- ========================================================= -->
 
@@ -128,8 +128,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Task list (checkboxy)                                     -->
-	<!-- (w C#: Run.Classes.Add("md-task-checkbox"))                -->
+	<!-- Task list (checkboxes)                                     -->
+	<!-- (in C#: Run.Classes.Add("md-task-checkbox"))                -->
 	<!-- ========================================================= -->
 
 	<Style Selector="Run.md-task-checkbox">
@@ -139,21 +139,21 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Bloki LaTeX (FormulaBlock)                                -->
-	<!-- (w C#: formula.Classes.Add("md-math-block"))              -->
+	<!-- LaTeX blocks (FormulaBlock)                                -->
+	<!-- (in C#: formula.Classes.Add("md-math-block"))              -->
 	<!-- ========================================================= -->
 
 	<Style Selector="math|FormulaBlock.md-math-block">
 		<Setter Property="FontSize" Value="24" />
 		<Setter Property="HorizontalAlignment" Value="Left" />
 		<Setter Property="Margin" Value="0,8,0,12" />
-		<!-- można dodać np. tło dla wzorów -->
+		<!-- you can add e.g. background for formulas -->
 	</Style>
 
 
 	<!-- ========================================================= -->
-	<!-- Inline LaTeX (FormulaBlock w InlineUIContainer)           -->
-	<!-- (w C#: formula.Classes.Add("md-math-inline"))             -->
+	<!-- Inline LaTeX (FormulaBlock in InlineUIContainer)           -->
+	<!-- (in C#: formula.Classes.Add("md-math-inline"))             -->
 	<!-- ========================================================= -->
 
 	<Style Selector="math|FormulaBlock.md-math-inline">
@@ -163,8 +163,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Bloki kodu – AvaloniaEdit.TextEditor                      -->
-	<!-- (w C#: editor.Classes.Add("md-code-block"))               -->
+	<!-- Code blocks – AvaloniaEdit.TextEditor                      -->
+	<!-- (in C#: editor.Classes.Add("md-code-block"))               -->
 	<!-- ========================================================= -->
 
 	<Style Selector="edit|TextEditor.md-code-block">
@@ -174,8 +174,8 @@
 		<Setter Property="FontSize" Value="13" />
 	</Style>
 
-	<!-- Opcjonalnie: kontener Border dla bloku kodu               -->
-	<!-- (w C#: border.Classes.Add("md-code-container"))           -->
+	<!-- Optional: Border container for code block               -->
+	<!-- (in C#: border.Classes.Add("md-code-container"))           -->
 	<Style Selector="Border.md-code-container">
 		<Setter Property="Background" Value="#404040" />
 		<Setter Property="CornerRadius" Value="4" />
@@ -185,8 +185,8 @@
 
 
 	<!-- ========================================================= -->
-	<!-- Linki inline (Button + TextBlock)                         -->
-	<!-- (w C#: button.Classes.Add("md-link-button"),              -->
+	<!-- Inline links (Button + TextBlock)                         -->
+	<!-- (in C#: button.Classes.Add("md-link-button"),              -->
 	<!--      textBlock.Classes.Add("md-link-text"))               -->
 	<!-- ========================================================= -->
 
@@ -195,7 +195,7 @@
 		<Setter Property="BorderThickness" Value="0" />
 		<Setter Property="Padding" Value="0" />
 		<Setter Property="Cursor" Value="Hand" />
-		<Setter Property="FocusAdorner" Value="{x:Null}" /> <!-- opcjonalne: nie pokazuje domyślnego focusa, jeśli nie chcesz -->
+		<Setter Property="FocusAdorner" Value="{x:Null}" /> <!-- optional: hides default focus if you don't want it -->
 	</Style>
 
 
