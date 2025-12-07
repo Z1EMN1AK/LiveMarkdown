@@ -1,0 +1,43 @@
+# Build artifacts
+bin/
+obj/
+
+# VS / Rider
+.vs/
+.idea/
+*.suo
+*.user
+
+# NuGet
+**/packages/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider
+*.sln.iml
+
+# JetBrains Rider cache
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Dotnet tools
+*.dotCover
+
+# Others
+*.tmp
+
+# Ignore user secrets
+secrets.json
+
+# Avalonia local files
+*.pdb
+
+# Git
+# Add .gitignore to the repo root before committing to GitHub

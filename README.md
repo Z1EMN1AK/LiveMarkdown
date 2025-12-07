@@ -1,0 +1,38 @@
+# LiveMarkdown
+
+LiveMarkdown is a lightweight Avalonia-based Markdown renderer and viewer for .NET 8. It focuses on producing a high-quality visual representation of Markdown documents (headings, lists, tables, code fences, inline and block LaTeX, task lists, quotes, horizontal rules and more) and includes features for incremental/stream rendering to support live preview scenarios.
+
+Key features
+- Full Markdown support via `Markdig` with advanced extensions enabled
+- Inline and block math rendering using `AvaloniaMath` (LaTeX support)
+- Syntax-highlighted fenced code blocks using `AvaloniaEdit`
+- Tables, task lists, emojis, and more
+- Incremental/stream rendering mode: the renderer is optimized to re-render only appended changes at the document end when used in streaming/live-edit scenarios, making it ideal for live preview while writing or piping content progressively
+- Rich styling via `Generic.axaml` styles and CSS-like classes on visual elements
+
+Dependencies
+- .NET 8 (net8.0)
+- Avalonia 11.3.9
+- Avalonia.AvaloniaEdit 11.3.0
+- AvaloniaMath 2.1.0
+- Markdig 0.44.0
+
+See `LiveMarkdown/LiveMarkdown.csproj` for exact package versions used in the project.
+
+Build & run
+1. Install .NET 8 SDK: https://dotnet.microsoft.com/download
+2. Clone the repository
+3. Restore and build:
+   - `dotnet restore`
+   - `dotnet build`
+4. Run the application from the project folder:
+   - `dotnet run --project LiveMarkdown/LiveMarkdown.csproj`
+
+Notes about streaming and live preview
+The renderer implements an incremental rendering mode that detects when the new input is a simple append to the previous content and attempts to update only the end of the visual tree. This reduces CPU and UI churn during typical live-edit workflows (typing or appending text) and makes the viewer suitable for streaming scenarios where Markdown arrives progressively.
+
+Contributing
+Contributions are welcome. Please open issues or pull requests. When contributing, try to keep changes small and focused and follow the existing code style.
+
+License
+This project is provided under the MIT License. See `LICENSE` for details.
