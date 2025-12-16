@@ -4,11 +4,27 @@ LiveMarkdown is a lightweight Avalonia-based Markdown renderer and viewer for .N
 
 Key features
 - Full Markdown support via `Markdig` with advanced extensions enabled
+- **Mermaid diagram support**: render Mermaid diagrams directly in Markdown using fenced code blocks with `mermaid` (see below)
 - Inline and block math rendering using `AvaloniaMath` (LaTeX support)
 - Syntax-highlighted fenced code blocks using `AvaloniaEdit`
 - Tables, task lists, emojis, and more
 - Incremental/stream rendering mode: the renderer is optimized to re-render only appended changes at the document end when used in streaming/live-edit scenarios, making it ideal for live preview while writing or piping content progressively
 - Rich styling via `Generic.axaml` styles and CSS-like classes on visual elements
+
+## Mermaid diagrams
+LiveMarkdown now supports rendering [Mermaid](https://mermaid-js.github.io/) diagrams directly in your Markdown files. To use this feature, simply add a fenced code block with the language set to `mermaid`:
+
+````markdown
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+````
+
+The diagram will be rendered in place of the code block.
 
 Dependencies
 - .NET 8 (net8.0)

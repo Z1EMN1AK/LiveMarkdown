@@ -9,6 +9,7 @@ using Avalonia.Media;
 using AvaloniaEdit;
 using AvaloniaEdit.Highlighting;
 using AvaloniaMath.Controls;
+using LiveMarkdown.Controls.Mermaid;
 using Markdig;
 using Markdig.Extensions.Mathematics;
 using Markdig.Extensions.Tables;
@@ -19,6 +20,9 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Avalonia.Threading;
+using System.Threading;
+using System.Threading.Tasks;
 // aliases for readability
 using MdContainerInline = Markdig.Syntax.Inlines.ContainerInline;
 using MdInline = Markdig.Syntax.Inlines.Inline;
@@ -98,7 +102,14 @@ namespace LiveMarkdown.Controls
             _lastText = Text;
 
             // Parse the new document
-            var doc = Markdown.Parse(Text, Pipeline);
+            // Normalize LaTeX delimiters \(...\) and \[...\] to Markdown-style $...$ and $$...$$
+            var normalizedText = Text
+                .Replace("\\[", "$$")
+                .Replace("\\]", "$$")
+                .Replace("\\(", "$")
+                .Replace("\\)","$");
+
+            var doc = Markdown.Parse(normalizedText, Pipeline);
 
             // Collect ONLY blocks that we actually render
             var blocks = new List<Block>();
@@ -290,10 +301,112 @@ namespace LiveMarkdown.Controls
             };
 
             tb.Classes.Add("md-paragraph");
+            tb.Classes.Add("md-anim-fadein");
 
-            BuildInlines(container, tb.Inlines);
+            // Build inlines and highlight last word if this is the last paragraph
+            bool highlightLastWord = false;
+            if (_contentHost != null && _contentHost.Children.Count == 0) // full render, last block
+                highlightLastWord = true;
+            else if (_contentHost != null && _contentHost.Children.Count > 0 && target.Children.Count > 0 && ReferenceEquals(target.Children[target.Children.Count - 1], tb))
+                highlightLastWord = true;
+
+            BuildInlinesWithOptionalHighlight(container, tb.Inlines, highlightLastWord);
 
             target.Children.Add(tb);
+
+            // Fade-in animation
+            tb.Opacity = 0;
+            Dispatcher.UIThread.Post(async () =>
+            {
+                await Task.Delay(10);
+                tb.Opacity = 1;
+            });
+        }
+
+        private CancellationTokenSource? _highlightCts;
+
+        private void BuildInlinesWithOptionalHighlight(MdContainerInline container, InlineCollection inlines, bool highlightLastWord)
+        {
+            MdInline? current = container.FirstChild;
+            Run? lastRun = null;
+            try
+            {
+                while (current is not null)
+                {
+                    switch (current)
+                    {
+                        case LiteralInline literal:
+                            var text = literal.Content.ToString();
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                var words = text.Split(' ');
+                                for (int i = 0; i < words.Length; i++)
+                                {
+                                    var word = words[i];
+                                    if (string.IsNullOrEmpty(word)) continue;
+                                    var run = new Run { Text = word };
+                                    lastRun = run;
+                                    inlines.Add(run);
+                                    if (i < words.Length - 1)
+                                        inlines.Add(new Run { Text = " " });
+                                }
+                            }
+                            break;
+                        case LineBreakInline:
+                            inlines.Add(new LineBreak());
+                            break;
+                        case EmphasisInline emphasis:
+                            AddEmphasisInline(emphasis, inlines);
+                            break;
+                        case CodeInline code:
+                            inlines.Add(new Run
+                            {
+                                Text = code.Content,
+                                FontFamily = new FontFamily("Consolas, Courier New, monospace"),
+                                Background = Brushes.DimGray
+                            });
+                            break;
+                        case LinkInline link:
+                            AddLinkInline(link, inlines);
+                            break;
+                        case MathInline mathInline:
+                            AddMathInline(mathInline, inlines);
+                            break;
+                        case TaskList task:
+                            AddTaskListInline(task, inlines);
+                            break;
+                        case HtmlInline:
+                            break;
+                        default:
+                            inlines.Add(new Run { Text = current.ToString() });
+                            break;
+                    }
+                    current = current.NextSibling;
+                }
+            }
+            catch
+            {
+                if (current is not null)
+                    inlines.Add(new Run { Text = current.ToString() });
+            }
+
+            // Highlight last word if requested
+            if (highlightLastWord && lastRun != null)
+            {
+                lastRun.Classes.Add("md-highlight");
+                _highlightCts?.Cancel();
+                _highlightCts = new CancellationTokenSource();
+                var token = _highlightCts.Token;
+                Dispatcher.UIThread.Post(async () =>
+                {
+                    try
+                    {
+                        await Task.Delay(500, token);
+                        lastRun.Classes.Remove("md-highlight");
+                    }
+                    catch { }
+                });
+            }
         }
 
 
@@ -301,41 +414,35 @@ namespace LiveMarkdown.Controls
         {
             var codeText = codeBlock.Lines.ToString().TrimEnd('\r', '\n');
 
-            // 1) Special case: ```latex / ```math / ```tex
+            // 1) Mermaid diagram
             if (codeBlock is FencedCodeBlock fenced)
             {
                 var info = fenced.Info?.ToString()?.Trim().ToLowerInvariant();
-
-                if (info is "latex" or "math" or "tex")
+                if (info == "mermaid" && !string.IsNullOrWhiteSpace(codeText))
                 {
-                    if (!string.IsNullOrWhiteSpace(codeText))
+                    try
                     {
-                        try
+                        var mermaidControl = MermaidFactory.Create(codeText);
+                        var viewer = new MermaidViewer(mermaidControl)
                         {
-                            var formula = new FormulaBlock
-                            {
-                                Formula = codeText,
-                                FontSize = 24,
-                                Margin = new Thickness(0, 8, 0, 12),
-                                HorizontalAlignment = HorizontalAlignment.Left
-                            };
-
-                            formula.Classes.Add("md-math-block");
-                            target.Children.Add(formula);
-                        }
-                        catch
-                        {
-                            // Fallback: show text if LaTeX fails
-                            target.Children.Add(new TextBlock
-                            {
-                                Text = codeText,
-                                TextWrapping = TextWrapping.Wrap,
-                                Margin = new Thickness(0, 4, 0, 12)
-                            });
-                        }
-
-                        return;
+                            Margin = new Thickness(0, 8, 0, 12),
+                            MaxHeight = 500, // ograniczenie wysokości widoku zintegrowanego
+                            MinWidth = 700   // domyślna szerokość dla lepszej widoczności
+                        };
+                        target.Children.Add(viewer);
+                        // Wyśrodkuj diagram po pełnym wyrenderowaniu
+                        viewer.RequestFitToView();
                     }
+                    catch (Exception ex)
+                    {
+                        target.Children.Add(new TextBlock
+                        {
+                            Text = $"[Błąd Mermaid]: {ex.Message}",
+                            Foreground = Brushes.OrangeRed,
+                            Margin = new Thickness(0, 4, 0, 12)
+                        });
+                    }
+                    return;
                 }
             }
 
@@ -557,6 +664,7 @@ namespace LiveMarkdown.Controls
                     };
 
                     cellBorder.Classes.Add(isHeader ? "md-table-header" : "md-table-cell");
+                    // Usunięto md-anim-slidein, nie przesuwaj ostatniego wiersza
 
                     Grid.SetRow(cellBorder, rowIndex);
                     Grid.SetColumn(cellBorder, colIndex);
@@ -885,16 +993,8 @@ namespace LiveMarkdown.Controls
             // Accessibility: set a readable name for assistive tools
             button.SetValue(Avalonia.Automation.AutomationProperties.NameProperty, text);
 
-            // Minimal protection against attaching events multiple times:
-            // you can use a Command instead of an anonymous handler if you plan to bind later.
-            void clickHandler(object? _, RoutedEventArgs __) => OpenUrl(url);
+            button.Click += (_, _) => OpenUrl(url);
 
-            button.Click += clickHandler;
-
-            // Optionally: to avoid potential leaks in long-lived controls,
-            // you can detach the handler when the control is removed (requires an extra hook),
-            // but for simplicity we keep the handler — if memory issues arise,
-            // we'll switch to a Command or a weak-reference handler.
             var inlineContainer = new InlineUIContainer
             {
                 Child = button
