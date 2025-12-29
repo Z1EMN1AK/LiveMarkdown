@@ -19,14 +19,16 @@ Dependencies
 
 See `LiveMarkdown/LiveMarkdown.csproj` for exact package versions used in the project.
 
-Build & run
+Build & usage
 1. Install .NET 8 SDK: https://dotnet.microsoft.com/download
 2. Clone the repository
 3. Restore and build:
    - `dotnet restore`
    - `dotnet build`
-4. Run the application from the project folder:
-   - `dotnet run --project LiveMarkdown/LiveMarkdown.csproj`
+4. Reference the library in your Avalonia project:
+   - Add a project reference or install the NuGet package
+   - Include the styles: `<StyleInclude Source="avares://LiveMarkdown/Themes/Generic.axaml" />`
+   - Use in XAML: `<local:MarkdownView Text="{Binding MarkdownText}" />`
 
 Notes about streaming and live preview
 The renderer implements an incremental rendering mode that detects when the new input is a simple append to the previous content and attempts to update only the end of the visual tree. This reduces CPU and UI churn during typical live-edit workflows (typing or appending text) and makes the viewer suitable for streaming scenarios where Markdown arrives progressively.
@@ -35,4 +37,4 @@ Contributing
 Contributions are welcome. Please open issues or pull requests. When contributing, try to keep changes small and focused and follow the existing code style.
 
 License
-This project is provided under the MIT License. See `LICENSE` for details.
+This project is provided under the Apache License 2.0. See `LICENSE` for details.

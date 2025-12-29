@@ -4,205 +4,176 @@
         xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         xmlns:math="clr-namespace:AvaloniaMath.Controls;assembly=AvaloniaMath">
 
-	<!-- ========================================================= -->
-	<!-- Template for MarkdownView                                 -->
-	<!-- ========================================================= -->
-	<Style Selector="local|MarkdownView">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:MarkdownView">
-					<Border
-						Padding="8"
-						Background="Transparent">
-						<ScrollViewer>
-							<!-- all generated controls land here -->
-							<StackPanel x:Name="PART_ContentHost"
-									Orientation="Vertical"
-									Spacing="4" />
-							</ScrollViewer>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+    <!-- Template for MarkdownView -->
+    <Style Selector="local|MarkdownView">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:MarkdownView">
+                    <Border
+                        Padding="8"
+                        Background="Transparent">
+                        <ScrollViewer>
+                            <!-- all generated controls land here -->
+                            <StackPanel x:Name="PART_ContentHost"
+                                    Orientation="Vertical"
+                                    Spacing="4" />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
+    <!-- Headings -->
+    <Style Selector="TextBlock.md-heading-1">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,16,0,8" />
+    </Style>
 
-	<!-- ========================================================= -->
-	<!-- Headings                                                  -->
-	<!-- (in C#: tb.Classes.Add("md-heading-1" | "md-heading-2"...)  -->
-	<!-- ========================================================= -->
+    <Style Selector="TextBlock.md-heading-2">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,12,0,6" />
+    </Style>
 
-	<Style Selector="TextBlock.md-heading-1">
-		<Setter Property="FontSize" Value="28" />
-		<Setter Property="FontWeight" Value="Bold" />
-		<Setter Property="Margin" Value="0,16,0,8" />
-	</Style>
+    <Style Selector="TextBlock.md-heading-3">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,10,0,4" />
+    </Style>
 
-	<Style Selector="TextBlock.md-heading-2">
-		<Setter Property="FontSize" Value="24" />
-		<Setter Property="FontWeight" Value="Bold" />
-		<Setter Property="Margin" Value="0,12,0,6" />
-	</Style>
+    <Style Selector="TextBlock.md-heading-4">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,8,0,4" />
+    </Style>
 
-	<Style Selector="TextBlock.md-heading-3">
-		<Setter Property="FontSize" Value="20" />
-		<Setter Property="FontWeight" Value="Bold" />
-		<Setter Property="Margin" Value="0,10,0,4" />
-	</Style>
+    <Style Selector="TextBlock.md-heading-5">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,6,0,4" />
+    </Style>
 
-	<Style Selector="TextBlock.md-heading-4">
-		<Setter Property="FontSize" Value="18" />
-		<Setter Property="FontWeight" Value="SemiBold" />
-		<Setter Property="Margin" Value="0,8,0,4" />
-	</Style>
+    <Style Selector="TextBlock.md-heading-6">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,4,0,4" />
+    </Style>
 
-	<!-- fallback for headings 5/6, if you also add the class -->
-	<Style Selector="TextBlock.md-heading-5">
-		<Setter Property="FontSize" Value="16" />
-		<Setter Property="FontWeight" Value="SemiBold" />
-		<Setter Property="Margin" Value="0,6,0,4" />
-	</Style>
+    <!-- Regular paragraphs -->
+    <Style Selector="TextBlock.md-paragraph">
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,4,0,12" />
+        <!-- you can add Foreground, LineHeight etc. here -->
+    </Style>
 
+    <!-- Quotes -->
+    <Style Selector="Border.md-quote">
+        <Setter Property="Background" Value="#20FFFFFF" />
+        <Setter Property="BorderThickness" Value="3,0,0,0" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="Padding" Value="8,4,4,4" />
+        <Setter Property="Margin" Value="0,4,0,12" />
+    </Style>
 
-	<!-- ========================================================= -->
-	<!-- Regular paragraphs                                         -->
-	<!-- (in C#: tb.Classes.Add("md-paragraph"))                     -->
-	<!-- ========================================================= -->
+    <!-- Horizontal rules (HR) -->
+    <Style Selector="Border.md-hr">
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="0,0.5,0,0" />
+        <Setter Property="Margin" Value="0,8,0,8" />
+    </Style>
 
-	<Style Selector="TextBlock.md-paragraph">
-		<Setter Property="TextWrapping" Value="Wrap" />
-		<Setter Property="Margin" Value="0,4,0,12" />
-		<!-- you can add Foreground, LineHeight etc. here -->
-	</Style>
+    <!-- Tables -->
+    <Style Selector="Grid.md-table">
+        <Setter Property="Margin" Value="0,4,0,12" />
+    </Style>
 
+    <Style Selector="Border.md-table-header">
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="0.5" />
+        <Setter Property="Background" Value="#40FFFFFF" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
 
-	<!-- ========================================================= -->
-	<!-- Quotes                                                     -->
-	<!-- (in C#: border.Classes.Add("md-quote"))                     -->
-	<!-- ========================================================= -->
+    <Style Selector="Border.md-table-cell">
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="0.5" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
 
-	<Style Selector="Border.md-quote">
-		<Setter Property="Background" Value="#20FFFFFF" />
-		<Setter Property="BorderThickness" Value="3,0,0,0" />
-		<Setter Property="BorderBrush" Value="Gray" />
-		<Setter Property="Padding" Value="8,4,4,4" />
-		<Setter Property="Margin" Value="0,4,0,12" />
-	</Style>
+    <!-- Task list (checkboxes) -->
+    <Style Selector="Run.md-task-checkbox">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="Bold" />
+    </Style>
 
+    <!-- LaTeX blocks (FormulaBlock) -->
+    <Style Selector="math|FormulaBlock.md-math-block">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Margin" Value="0,8,0,12" />
+        <!-- you can add e.g. background for formulas -->
+    </Style>
 
-	<!-- ========================================================= -->
-	<!-- Horizontal rules (HR)                                       -->
-	<!-- (in C#: border.Classes.Add("md-hr"))                        -->
-	<!-- ========================================================= -->
+    <!-- Inline LaTeX (FormulaBlock in InlineUIContainer) -->
+    <Style Selector="math|FormulaBlock.md-math-inline">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Margin" Value="0,0,0,0" />
+    </Style>
 
-	<Style Selector="Border.md-hr">
-		<Setter Property="BorderBrush" Value="Gray" />
-		<Setter Property="BorderThickness" Value="0,0.5,0,0" />
-		<Setter Property="Margin" Value="0,8,0,8" />
-	</Style>
+    <!-- Code blocks – AvaloniaEdit.TextEditor -->
+    <Style Selector="edit|TextEditor.md-code-block">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="#303030" />
+        <Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
 
+    <!-- Optional: Border container for code block -->
+    <Style Selector="Border.md-code-container">
+        <Setter Property="Background" Value="#404040" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="0,4,0,12" />
+    </Style>
 
-	<!-- ========================================================= -->
-	<!-- Tables                                                     -->
-	<!-- (in C#: grid.Classes.Add("md-table");                       -->
-	<!--     cellBorder.Classes.Add("md-table-header" / "md-table-cell")) -->
-	<!-- ========================================================= -->
+    <!-- Inline links (Button + TextBlock) -->
+    <Style Selector="Button.md-link">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusAdorner" Value="{x:Null}" /> <!-- optional: hides default focus if you don't want it -->
+    </Style>
 
-	<Style Selector="Grid.md-table">
-		<Setter Property="Margin" Value="0,4,0,12" />
-	</Style>
+    <Style Selector="TextBlock.md-link-text">
+        <Setter Property="Foreground" Value="DeepSkyBlue" />
+        <Setter Property="TextDecorations" Value="Underline" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
 
-	<Style Selector="Border.md-table-header">
-		<Setter Property="BorderBrush" Value="Gray" />
-		<Setter Property="BorderThickness" Value="0.5" />
-		<Setter Property="Background" Value="#40FFFFFF" />
-		<Setter Property="Padding" Value="4" />
-	</Style>
+    <!-- Highlight for last word animation -->
+    <Style Selector="Run.md-highlight">
+        <Setter Property="Foreground" Value="#FFFFA0"/>
+    </Style>
 
-	<Style Selector="Border.md-table-cell">
-		<Setter Property="BorderBrush" Value="Gray" />
-		<Setter Property="BorderThickness" Value="0.5" />
-		<Setter Property="Background" Value="Transparent" />
-		<Setter Property="Padding" Value="4" />
-	</Style>
+    <!-- Fade-in animation for TextBlock (paragraphs, headings, etc.) -->
+    <Style Selector="TextBlock.md-anim-fadein">
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+            </Transitions>
+        </Setter>
+    </Style>
 
-
-	<!-- ========================================================= -->
-	<!-- Task list (checkboxes)                                     -->
-	<!-- (in C#: Run.Classes.Add("md-task-checkbox"))                -->
-	<!-- ========================================================= -->
-
-	<Style Selector="Run.md-task-checkbox">
-		<Setter Property="Foreground" Value="White" />
-		<Setter Property="FontWeight" Value="Bold" />
-	</Style>
-
-
-	<!-- ========================================================= -->
-	<!-- LaTeX blocks (FormulaBlock)                                -->
-	<!-- (in C#: formula.Classes.Add("md-math-block"))              -->
-	<!-- ========================================================= -->
-
-	<Style Selector="math|FormulaBlock.md-math-block">
-		<Setter Property="FontSize" Value="24" />
-		<Setter Property="HorizontalAlignment" Value="Left" />
-		<Setter Property="Margin" Value="0,8,0,12" />
-		<!-- you can add e.g. background for formulas -->
-	</Style>
-
-
-	<!-- ========================================================= -->
-	<!-- Inline LaTeX (FormulaBlock in InlineUIContainer)           -->
-	<!-- (in C#: formula.Classes.Add("md-math-inline"))             -->
-	<!-- ========================================================= -->
-
-	<Style Selector="math|FormulaBlock.md-math-inline">
-		<Setter Property="FontSize" Value="18" />
-		<Setter Property="Margin" Value="0,0,0,0" />
-	</Style>
-
-
-	<!-- ========================================================= -->
-	<!-- Code blocks – AvaloniaEdit.TextEditor                      -->
-	<!-- (in C#: editor.Classes.Add("md-code-block"))               -->
-	<!-- ========================================================= -->
-
-	<Style Selector="edit|TextEditor.md-code-block">
-		<Setter Property="Foreground" Value="White" />
-		<Setter Property="Background" Value="#303030" />
-		<Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
-		<Setter Property="FontSize" Value="13" />
-	</Style>
-
-	<!-- Optional: Border container for code block               -->
-	<!-- (in C#: border.Classes.Add("md-code-container"))           -->
-	<Style Selector="Border.md-code-container">
-		<Setter Property="Background" Value="#404040" />
-		<Setter Property="CornerRadius" Value="4" />
-		<Setter Property="Padding" Value="4" />
-		<Setter Property="Margin" Value="0,4,0,12" />
-	</Style>
-
-
-	<!-- ========================================================= -->
-	<!-- Inline links (Button + TextBlock)                         -->
-	<!-- (in C#: button.Classes.Add("md-link-button"),              -->
-	<!--      textBlock.Classes.Add("md-link-text"))               -->
-	<!-- ========================================================= -->
-
-	<Style Selector="Button.md-link">
-		<Setter Property="Background" Value="Transparent" />
-		<Setter Property="BorderThickness" Value="0" />
-		<Setter Property="Padding" Value="0" />
-		<Setter Property="Cursor" Value="Hand" />
-		<Setter Property="FocusAdorner" Value="{x:Null}" /> <!-- optional: hides default focus if you don't want it -->
-	</Style>
-
-
-	<Style Selector="TextBlock.md-link-text">
-		<Setter Property="Foreground" Value="DeepSkyBlue" />
-		<Setter Property="TextDecorations" Value="Underline" />
-		<Setter Property="Padding" Value="0" />
-	</Style>
+    <!-- Slide-in animation for table rows -->
+    <Style Selector="Border.md-anim-slidein">
+        <Setter Property="RenderTransform">
+            <TranslateTransform X="-30"/>
+        </Setter>
+    </Style>
 
 </Styles>

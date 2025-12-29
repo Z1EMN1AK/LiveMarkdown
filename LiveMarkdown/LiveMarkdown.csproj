@@ -4,14 +4,36 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- NuGet metadata -->
+    <PackageId>LiveMarkdown</PackageId>
+    <Version>1.1.1</Version>
+    <Authors>Piotr Kateusz</Authors>
+    <Description>Lightweight Avalonia-based Markdown renderer with incremental/stream rendering, LaTeX math and syntax highlighting.</Description>
+    <PackageTags>markdown;avalonia;latex;markdig;avaloniaedit;renderer</PackageTags>
+    <RepositoryUrl>https://github.com/Z1EMN1AK/LiveMarkdown</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Z1EMN1AK/LiveMarkdown</PackageProjectUrl>
+
+    <!-- License info (preferred for nuget.org) -->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
+    <!-- Optional: include README in NuGet package page -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Build .nupkg on build (Release) -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <AvaloniaXaml Remove="Themes\Generic.axaml" />
+    <!-- Include styles -->
+    <AvaloniaResource Include="Themes\Generic.axaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Themes\Generic.axaml" />
+    <!-- Include README and LICENSE into the package root -->
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <ItemGroup>
