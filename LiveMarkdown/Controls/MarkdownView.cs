@@ -927,6 +927,55 @@ namespace LiveMarkdown.Controls
             span.Classes.Add("md-emphasis");
 
             inlines.Add(span);
+
+            // Ensure a separating space after emphasis if the following inline starts with a non-space
+            var next = emphasis.NextSibling;
+            if (next is not null)
+            {
+                var first = GetFirstCharOfInline(next);
+                if (first.HasValue && !char.IsWhiteSpace(first.Value))
+                {
+                    inlines.Add(new Run { Text = " " });
+                }
+            }
+        }
+
+        private static char? GetFirstCharOfInline(MdInline? inline)
+        {
+            if (inline is null) return null;
+
+            // LiteralInline
+            if (inline is LiteralInline lit)
+            {
+                var s = lit.Content.ToString();
+                if (!string.IsNullOrEmpty(s))
+                    return s[0];
+                return null;
+            }
+
+            // CodeInline
+            if (inline is CodeInline code)
+            {
+                var s = code.Content;
+                if (!string.IsNullOrEmpty(s))
+                    return s[0];
+                return null;
+            }
+
+            // Container inline: inspect children
+            if (inline is MdContainerInline container)
+            {
+                var child = container.FirstChild;
+                while (child is not null)
+                {
+                    var c = GetFirstCharOfInline(child);
+                    if (c.HasValue) return c;
+                    child = child.NextSibling;
+                }
+                return null;
+            }
+
+            return null;
         }
 
         private void AddMathInline(MathInline mathInline, InlineCollection inlines)

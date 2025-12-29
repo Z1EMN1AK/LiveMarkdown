@@ -7,7 +7,7 @@
 
     <!-- NuGet metadata -->
     <PackageId>LiveMarkdown</PackageId>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>Piotr Kateusz</Authors>
     <Description>Lightweight Avalonia-based Markdown renderer with incremental/stream rendering, LaTeX math and syntax highlighting.</Description>
     <PackageTags>markdown;avalonia;latex;markdig;avaloniaedit;renderer</PackageTags>
