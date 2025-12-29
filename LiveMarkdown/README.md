@@ -1,56 +1,78 @@
 # LiveMarkdown
 
-LiveMarkdown is a lightweight Avalonia-based Markdown renderer and viewer for .NET 8. It focuses on producing a high-quality visual representation of Markdown documents (headings, lists, tables, code fences, inline and block LaTeX, task lists, quotes, horizontal rules and more) and includes features for incremental/stream rendering to support live preview scenarios.
+A lightweight Avalonia control for rendering Markdown in .NET 8 applications. LiveMarkdown focuses on high-quality visual rendering, streaming/incremental preview scenarios and consistent theming (including LaTeX formula color enforcement).
 
-Key features
-- Full Markdown support via `Markdig` with advanced extensions enabled
-- **Mermaid diagram support**: render Mermaid diagrams directly in Markdown using fenced code blocks with `mermaid` (see below)
-- Inline and block math rendering using `AvaloniaMath` (LaTeX support)
-- Syntax-highlighted fenced code blocks using `AvaloniaEdit`
-- Tables, task lists, emojis, and more
-- Incremental/stream rendering mode: the renderer is optimized to re-render only appended changes at the document end when used in streaming/live-edit scenarios, making it ideal for live preview while writing or piping content progressively
-- Rich styling via `Generic.axaml` styles and CSS-like classes on visual elements
+## Supported features
 
-## Mermaid diagrams
-LiveMarkdown now supports rendering [Mermaid](https://mermaid-js.github.io/) diagrams directly in your Markdown files. To use this feature, simply add a fenced code block with the language set to `mermaid`:
+- Markdown parsing via Markdig with advanced extensions enabled:
+  - Headings (H1–H6)
+  - Paragraphs
+  - Ordered and unordered lists (with nesting)
+  - Task lists (? / ?)
+  - Tables (pipe tables)
+  - Blockquotes
+  - Horizontal rules
+  - Links and images
+  - Emoji support
+- Fenced code blocks with syntax highlighting using AvaloniaEdit (common languages supported such as C#, JavaScript, Python, XML)
+- Inline code rendering (monospace)
+- Mermaid diagrams: render `fenced` code block with language `mermaid` as an inline diagram
+- LaTeX / math support via AvaloniaMath:
+  - Inline math (`$...$`)
+  - Block math (`$$...$$`)
+  - FormulaBlock rendering for inline and block math
+- Incremental / streaming rendering:
+  - Detects simple appends to existing content and re-renders only the tail
+  - Optimized for live preview and streaming scenarios
+  - Temporary highlighting of the last incoming chunk during streaming
+- Styling and theming:
+  - CSS-like classes and styles in `Generic.axaml` (e.g. `.md-heading`, `.md-paragraph`, `.md-code-block`, `.md-quote`, `.md-list`, `.md-table`)
+  - Control enforces its own Foreground on generated elements to ensure consistent colors across themes
+- Public API surface (high level):
+  - `Text` (string) — Markdown content to render
+  - `ContentForeground` / alias `Foreground` (IBrush) — color for already-rendered content
+  - `LiveContentForeground` / alias `LiveForeground` (IBrush) — color for the currently incoming chunk
 
-````markdown
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+## Quick usage (XAML)
+
+```xml
+xmlns:lm="clr-namespace:LiveMarkdown.Controls;assembly=LiveMarkdown"
+
+<!-- Rendered content white, live incoming chunk purple -->
+<lm:MarkdownView Text="{Binding MarkdownText}"
+                 Foreground="White"
+                 LiveForeground="#a94dc1" />
+
+<!-- Live stream example using resources -->
+<lm:MarkdownView Text="{Binding LiveMarkdownText}"
+                 Foreground="{StaticResource BrushTextPrimary}"
+                 LiveForeground="{StaticResource ButtonBorderBrush}" />
 ```
-````
 
-The diagram will be rendered in place of the code block.
+## Dependencies
 
-Dependencies
 - .NET 8 (net8.0)
-- Avalonia 11.3.9
-- Avalonia.AvaloniaEdit 11.3.0
-- AvaloniaMath 2.1.0
-- Markdig 0.44.0
+- Avalonia UI 11.3.x
+- Markdig
+- AvaloniaEdit (code block rendering & highlighting)
+- AvaloniaMath (LaTeX rendering)
 
-See `LiveMarkdown/LiveMarkdown.csproj` for exact package versions used in the project.
+Exact package versions are listed in `LiveMarkdown.csproj`.
 
-Build & usage
-1. Install .NET 8 SDK: https://dotnet.microsoft.com/download
-2. Clone the repository
-3. Restore and build:
-   - `dotnet restore`
-   - `dotnet build`
-4. Reference the library in your Avalonia project:
-   - Add a project reference or install the NuGet package
-   - Include the styles: `<StyleInclude Source="avares://LiveMarkdown/Themes/Generic.axaml" />`
-   - Use in XAML: `<local:MarkdownView Text="{Binding MarkdownText}" />`
+## Build & integration
 
-Notes about streaming and live preview
-The renderer implements an incremental rendering mode that detects when the new input is a simple append to the previous content and attempts to update only the end of the visual tree. This reduces CPU and UI churn during typical live-edit workflows (typing or appending text) and makes the viewer suitable for streaming scenarios where Markdown arrives progressively.
+1. Install .NET 8 SDK.
+2. `dotnet restore`
+3. `dotnet build`
+4. Add project reference or NuGet package to your Avalonia app.
+5. Include control styles in App resources:
 
-Contributing
-Contributions are welcome. Please open issues or pull requests. When contributing, try to keep changes small and focused and follow the existing code style.
+```xml
+<StyleInclude Source="avares://LiveMarkdown/Themes/Generic.axaml" />
+```
 
-License
-This project is provided under the Apache License 2.0. See `LICENSE` for details.
+6. Use the control in XAML: `<lm:MarkdownView Text="{Binding MarkdownText}" />`
+
+## License
+
+LiveMarkdown is licensed under the Apache License 2.0. See the `LICENSE` file for details.

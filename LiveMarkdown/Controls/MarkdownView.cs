@@ -23,6 +23,8 @@ using System.Text;
 using Avalonia.Threading;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
+using Avalonia.VisualTree;
 // aliases for readability
 using MdContainerInline = Markdig.Syntax.Inlines.ContainerInline;
 using MdInline = Markdig.Syntax.Inlines.Inline;
@@ -39,6 +41,8 @@ namespace LiveMarkdown.Controls
             AvaloniaProperty.Register<MarkdownView, string?>(nameof(Text));
 
         private string? _lastText;
+        // flag indicating we're rendering an incremental append
+        private bool _renderingAppend;
 
         public string? Text
         {
@@ -126,11 +130,15 @@ namespace LiveMarkdown.Controls
             {
                 _contentHost.Children.Clear();
 
+                // full render
+                _renderingAppend = false;
                 foreach (var block in blocks)
                 {
                     RenderBlock(block, _contentHost, listDepth: 0);
                 }
 
+                // enforce foregrounds so control settings override styles
+                ApplyForegrounds(highlightLast: false);
                 return;
             }
 
@@ -162,6 +170,9 @@ namespace LiveMarkdown.Controls
             {
                 RenderBlock(blocks[i], _contentHost, listDepth: 0);
             }
+            // enforce foregrounds and highlight last run temporarily
+            ApplyForegrounds(highlightLast: true);
+            _renderingAppend = false;
         }
 
 
@@ -1003,7 +1014,117 @@ namespace LiveMarkdown.Controls
             inlines.Add(inlineContainer);
         }
 
+        // Walk the visual tree of the content host and set Foreground on TextBlocks and Runs
+        // so that control-level ContentForeground/LiveContentForeground take precedence over external styles.
+        private void ApplyForegrounds(bool highlightLast)
+        {
+            if (_contentHost is null)
+                return;
 
+            var defaultBrush = ContentForeground ?? Brushes.White;
+
+            // iterate children recursively using Control
+            void VisitControl(Control? v)
+            {
+                if (v is null) return;
+
+                if (v is TextBlock tb)
+                {
+                    tb.Foreground = defaultBrush;
+                    // set inlines
+                    foreach (var inline in tb.Inlines.ToList())
+                    {
+                        if (inline is Run r)
+                            r.Foreground = defaultBrush;
+                        else if (inline is InlineUIContainer ui)
+                        {
+                            if (ui.Child is TextBlock childTb)
+                                childTb.Foreground = defaultBrush;
+                            else if (ui.Child is FormulaBlock fb)
+                                fb.Foreground = defaultBrush;
+                            else if (ui.Child is Control c)
+                            {
+                                // try to set Foreground via reflection if available
+                                var fgProp = c.GetType().GetProperty("Foreground");
+                                if (fgProp != null && fgProp.CanWrite && fgProp.PropertyType == typeof(IBrush))
+                                    fgProp.SetValue(c, defaultBrush);
+                            }
+                        }
+                    }
+                }
+                else if (v is FormulaBlock fb)
+                {
+                    fb.Foreground = defaultBrush;
+                }
+                else if (v is Panel p)
+                {
+                    foreach (var ch in p.Children)
+                        VisitControl(ch as Control);
+                }
+                else if (v is Border b && b.Child is Control childV)
+                {
+                    VisitControl(childV);
+                }
+            }
+
+            foreach (var child in _contentHost.Children)
+                VisitControl(child as Control);
+
+            if (highlightLast)
+            {
+                // find last TextBlock in visual tree
+                TextBlock? lastTb = null;
+                void FindLast(Control? v)
+                {
+                    if (v is null) return;
+                    if (v is TextBlock tb) lastTb = tb;
+                    else if (v is Panel p)
+                    {
+                        foreach (var ch in p.Children)
+                            FindLast(ch as Control);
+                    }
+                    else if (v is Border bd && bd.Child is Control cv)
+                        FindLast(cv);
+                }
+
+                foreach (var child in _contentHost.Children)
+                    FindLast(child as Control);
+
+                if (lastTb != null)
+                {
+                    // find last Run
+                    Run? lastRun = null;
+                    foreach (var inline in lastTb.Inlines)
+                    {
+                        if (inline is Run r) lastRun = r;
+                        else if (inline is InlineUIContainer ui && ui.Child is TextBlock ct)
+                        {
+                            // nested textblock
+                        }
+                    }
+
+                    if (lastRun != null)
+                    {
+                        var original = lastRun.Foreground;
+                        var liveBrush = LiveContentForeground ?? defaultBrush;
+                        lastRun.Foreground = liveBrush;
+
+                        var cts = new CancellationTokenSource();
+                        var token = cts.Token;
+                        // revert after short delay
+                        Dispatcher.UIThread.Post(async () =>
+                        {
+                            try
+                            {
+                                await Task.Delay(500, token);
+                                lastRun.Foreground = original ?? defaultBrush;
+                            }
+                            catch { }
+                        });
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Utility helpers
@@ -1071,5 +1192,46 @@ namespace LiveMarkdown.Controls
         }
 
         #endregion
+
+        // Foreground for rendered content (default when not streaming)
+        public static readonly StyledProperty<IBrush?> ContentForegroundProperty =
+            AvaloniaProperty.Register<MarkdownView, IBrush?>(nameof(ContentForeground));
+
+        // Foreground used for incoming/streaming text
+        public static readonly StyledProperty<IBrush?> LiveContentForegroundProperty =
+            AvaloniaProperty.Register<MarkdownView, IBrush?>(nameof(LiveContentForeground));
+
+        static MarkdownView()
+        {
+            // Default style key for control:
+            AffectsRender<MarkdownView>(ContentForegroundProperty);
+            AffectsRender<MarkdownView>(LiveContentForegroundProperty);
+        }
+
+        public IBrush? ContentForeground
+        {
+            get => GetValue(ContentForegroundProperty);
+            set => SetValue(ContentForegroundProperty, value);
+        }
+
+        // Expose 'Foreground' as an alias for ContentForeground so XAML can set Foreground on the control.
+        public new IBrush? Foreground
+        {
+            get => ContentForeground;
+            set => ContentForeground = value;
+        }
+
+        public IBrush? LiveContentForeground
+        {
+            get => GetValue(LiveContentForegroundProperty);
+            set => SetValue(LiveContentForegroundProperty, value);
+        }
+
+        // Alias property LiveForeground for easier XAML usage
+        public IBrush? LiveForeground
+        {
+            get => LiveContentForeground;
+            set => LiveContentForeground = value;
+        }
     }
 }
