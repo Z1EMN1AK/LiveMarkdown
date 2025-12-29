@@ -350,16 +350,27 @@ namespace LiveMarkdown.Controls
                             var text = literal.Content.ToString();
                             if (!string.IsNullOrEmpty(text))
                             {
-                                var words = text.Split(' ');
-                                for (int i = 0; i < words.Length; i++)
+                                int idx = 0;
+                                while (idx < text.Length)
                                 {
-                                    var word = words[i];
-                                    if (string.IsNullOrEmpty(word)) continue;
-                                    var run = new Run { Text = word };
-                                    lastRun = run;
-                                    inlines.Add(run);
-                                    if (i < words.Length - 1)
-                                        inlines.Add(new Run { Text = " " });
+                                    if (char.IsWhiteSpace(text[idx]))
+                                    {
+                                        int s = idx;
+                                        while (s < text.Length && char.IsWhiteSpace(text[s])) s++;
+                                        var spaces = text.Substring(idx, s - idx);
+                                        inlines.Add(new Run { Text = spaces });
+                                        idx = s;
+                                    }
+                                    else
+                                    {
+                                        int s = idx;
+                                        while (s < text.Length && !char.IsWhiteSpace(text[s])) s++;
+                                        var word = text.Substring(idx, s - idx);
+                                        var run = new Run { Text = word };
+                                        lastRun = run;
+                                        inlines.Add(run);
+                                        idx = s;
+                                    }
                                 }
                             }
                             break;
