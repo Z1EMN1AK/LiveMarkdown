@@ -24,6 +24,31 @@
         </Setter>
     </Style>
 
+    <!-- Template for VirtualizedMarkdownView -->
+    <Style Selector="local|VirtualizedMarkdownView">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:VirtualizedMarkdownView">
+                    <Border Padding="8" Background="Transparent">
+                        <ScrollViewer x:Name="PART_ScrollViewer"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="PART_ContentPanel"
+                                        Orientation="Vertical"
+                                        Spacing="4" />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Lazy placeholder style -->
+    <Style Selector="Border.md-lazy-placeholder">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="MinHeight" Value="20" />
+    </Style>
+
     <!-- Headings -->
     <Style Selector="TextBlock.md-heading-1">
         <Setter Property="FontSize" Value="28" />

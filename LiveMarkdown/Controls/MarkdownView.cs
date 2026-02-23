@@ -35,7 +35,7 @@ using MdTableRow = Markdig.Extensions.Tables.TableRow;
 
 namespace LiveMarkdown.Controls
 {
-    public class MarkdownView : TemplatedControl
+    public class MarkdownView : TemplatedControl, IDisposable
     {
         public static readonly StyledProperty<string?> TextProperty =
             AvaloniaProperty.Register<MarkdownView, string?>(nameof(Text));
@@ -335,6 +335,7 @@ namespace LiveMarkdown.Controls
         }
 
         private CancellationTokenSource? _highlightCts;
+        private bool _isDisposed;
 
         private void BuildInlinesWithOptionalHighlight(MdContainerInline container, InlineCollection inlines, bool highlightLastWord)
         {
@@ -1293,5 +1294,47 @@ namespace LiveMarkdown.Controls
             get => LiveContentForeground;
             set => LiveContentForeground = value;
         }
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed)
+                return;
+
+            _isDisposed = true;
+
+            if (disposing)
+            {
+                // Cancel and dispose highlight CTS
+                _highlightCts?.Cancel();
+                _highlightCts?.Dispose();
+                _highlightCts = null;
+
+                // Clear content host children
+                if (_contentHost != null)
+                {
+                    // Dispose any disposable children
+                    foreach (var child in _contentHost.Children)
+                    {
+                        if (child is IDisposable disposableChild)
+                        {
+                            disposableChild.Dispose();
+                        }
+                    }
+                    _contentHost.Children.Clear();
+                }
+
+                _lastText = null;
+            }
+        }
+
+        #endregion
     }
 }
