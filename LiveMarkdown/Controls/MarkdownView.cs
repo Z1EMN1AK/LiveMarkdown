@@ -884,8 +884,6 @@ namespace LiveMarkdown.Controls
 
         private void AddEmphasisInline(EmphasisInline emphasis, InlineCollection inlines)
         {
-            bool isBold = emphasis.DelimiterCount >= 2;
-
             if (emphasis is not MdContainerInline container)
                 return;
 
@@ -919,11 +917,18 @@ namespace LiveMarkdown.Controls
 
                 current = current.NextSibling;
             }
-
-            if (isBold)
-                span.FontWeight = FontWeight.Bold;
+            
+            if (emphasis.DelimiterChar == '~')
+            {
+                span.TextDecorations = TextDecorations.Strikethrough;
+            }
             else
-                span.FontStyle = FontStyle.Italic;
+            {
+                if (emphasis.DelimiterCount >= 2)
+                    span.FontWeight = FontWeight.Bold;
+                else
+                    span.FontStyle = FontStyle.Italic;
+            }
 
             span.Classes.Add("md-emphasis");
 
