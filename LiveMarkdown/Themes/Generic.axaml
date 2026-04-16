@@ -4,6 +4,9 @@
         xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         xmlns:math="clr-namespace:AvaloniaMath.Controls;assembly=AvaloniaMath">
 
+    <!-- For AvaloniaEdit Styles -->
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+
     <!-- Template for MarkdownView -->
     <Style Selector="local|MarkdownView">
         <Setter Property="Template">
